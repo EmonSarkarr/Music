@@ -27,6 +27,7 @@ class _MusicScreenState extends State<MusicScreen> {
       body: SafeArea(
           child: Column(
         children: [
+         const SizedBox(height: 20),
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Image.asset('lib/images/music_backgroud_img.png',
