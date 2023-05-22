@@ -1,3 +1,6 @@
+import 'package:audio_player/helper_functions/music_list.dart';
+import 'package:audio_player/helper_functions/time_formate.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
 class MusicScreen extends StatefulWidget {
@@ -8,10 +11,49 @@ class MusicScreen extends StatefulWidget {
 }
 
 class _MusicScreenState extends State<MusicScreen> {
-  double _playingTime = 100;
+  String url = "";
+  final audioPlayer = AudioPlayer();
+  bool isPlaying = false;
+  Duration duration = Duration.zero;
+  Duration position = Duration.zero;
+  late Size size;
+
+  @override
+  void initState() {
+    super.initState();
+    audioPlayer.onPlayerStateChanged.listen((state) {
+      setState(() {
+        isPlaying = state == PlayerState.PLAYING;
+      });
+      audioPlayer.onDurationChanged.listen((newDuration) {
+        setState(() {
+          duration = newDuration;
+        });
+      });
+    });
+
+    audioPlayer.onAudioPositionChanged.listen((event) {
+      setState(() {
+        position = event;
+      });
+    });
+
+    // audioPlayer.onPlayerStateChanged.listen((newPosition) {
+    //   setState(() {
+    //     position = newPosition;
+    //   });
+    // });
+  }
+
+  @override
+  void dispose() {
+    audioPlayer.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Colors.black54,
       appBar: AppBar(
@@ -27,11 +69,13 @@ class _MusicScreenState extends State<MusicScreen> {
       body: SafeArea(
           child: Column(
         children: [
-         const SizedBox(height: 20),
+          const SizedBox(height: 20),
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Image.asset('lib/images/music_backgroud_img.png',
-                fit: BoxFit.cover, height: 200, width: 200),
+                fit: BoxFit.cover,
+                height: size.height / 10,
+                width: size.width / 1),
           ),
           const SizedBox(
             height: 50,
@@ -56,23 +100,25 @@ class _MusicScreenState extends State<MusicScreen> {
               activeColor: Colors.white38,
               thumbColor: Colors.white,
               inactiveColor: Colors.white38,
-              value: _playingTime,
-              max: 200,
+              value: position.inSeconds.toDouble(),
+              max: duration.inSeconds.toDouble(),
               min: 0,
               // divisions: 50,
-              label: '${_playingTime.round()}',
+              //  label: '${_playingTime.round()}',
               onChanged: (val) {
                 setState(() {
-                  _playingTime = val;
+                  // position = val.toString();
                 });
               }),
           Padding(
-            padding: EdgeInsets.only(left: 20, right: 20),
+            padding: const EdgeInsets.only(left: 20, right: 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("3:50", style: TextStyle(color: Colors.black54)),
-                Text("4:21"),
+                Text(formateTime(position),
+                    style: const TextStyle(color: Colors.white)),
+                Text(formateTime(duration - position),
+                    style: const TextStyle(color: Colors.white)),
               ],
             ),
           ),
@@ -89,38 +135,70 @@ class _MusicScreenState extends State<MusicScreen> {
               IconButton(
                   onPressed: () {},
                   icon: Icon(
-                    Icons.play_arrow_sharp,
+                    Icons.skip_previous,
+                    color: Colors.white,
+                  )),
+              IconButton(
+                onPressed: () async {
+                  if (isPlaying) {
+                    await audioPlayer.pause();
+                  } else {
+                    String url =
+                        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+                    await audioPlayer.play(url);
+                    //simple changes [as Source];
+                  }
+                },
+                icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow,
+                    color: Colors.white),
+                iconSize: 50,
+              ),
+              IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.skip_next,
                     color: Colors.white,
                   )),
               IconButton(
                   onPressed: () {},
-                  icon: Icon(Icons.play_circle, color: Colors.white)),
-              IconButton(
-                  onPressed: () {},
-                  icon: Icon(
-                    Icons.play_arrow_sharp,
-                    color: Colors.white,
-                  )),
-              IconButton(
-                  onPressed: () {},
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.repeat,
                     color: Colors.white,
                   )),
             ],
           ),
           Column(
-
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-            const  Text('Episode', style: TextStyle(color: Colors.white)),
+              const Text('Episode',
+                  style: TextStyle(fontSize: 40, color: Colors.white)),
               IconButton(
                   onPressed: () {},
                   icon: const Icon(
-
                     Icons.arrow_drop_down,
                     color: Colors.white,
+                  )),
+              Container(
+                  height: 200,
+                  width: double.infinity,
+                  child: ListView.builder(
+                    itemCount: music_list.length,
+                    itemBuilder: (context, i) {
+                      final MusicLists = music_list[i];
+
+                      return ListTile(
+                        title: Text(MusicLists.title,
+                            style: const TextStyle(color: Colors.white)),
+                        leading: Icon(Icons.man,color: Colors.white),
+                       // Image.asset(""),
+                        trailing: IconButton(
+                          onPressed: () {},
+                          icon: const Icon(Icons.play_circle,
+                              color: Colors.white),
+                        ),
+                      );
+                    },
                   ))
             ],
           )
