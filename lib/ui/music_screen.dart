@@ -74,7 +74,7 @@ class _MusicScreenState extends State<MusicScreen> {
             borderRadius: BorderRadius.circular(10),
             child: Image.asset('lib/images/music_backgroud_img.png',
                 fit: BoxFit.cover,
-                height: size.height / 10,
+                height: size.height / 6,
                 width: size.width / 1),
           ),
           const SizedBox(
@@ -128,7 +128,7 @@ class _MusicScreenState extends State<MusicScreen> {
             children: [
               IconButton(
                   onPressed: () {},
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.shuffle,
                     color: Colors.white,
                   )),
@@ -190,8 +190,8 @@ class _MusicScreenState extends State<MusicScreen> {
                       return ListTile(
                         title: Text(MusicLists.title,
                             style: const TextStyle(color: Colors.white)),
-                        leading: Icon(Icons.man,color: Colors.white),
-                       // Image.asset(""),
+                        leading: Icon(Icons.man, color: Colors.white),
+                        // Image.asset(""),
                         trailing: IconButton(
                           onPressed: () {},
                           icon: const Icon(Icons.play_circle,
